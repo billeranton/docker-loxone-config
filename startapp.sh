@@ -10,23 +10,27 @@ export QT_WEBENGINE_DISABLE_CRASH_REPORTER=1
 export QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-software-rasterizer --disable-extensions"
 setxkbmap $XLANG
 
-# Remove window title bar decorations to fix mouse offset in noVNC
-mkdir -p /config/.config/openbox
-cat > /config/.config/openbox/rc.xml << 'XEOF'
+# Remove window decorations for all windows to fix noVNC mouse offset.
+# Openbox config in /var/run/ is the one actually used.
+mkdir -p /var/run/openbox
+cat > /var/run/openbox/rc.xml << 'XEOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <openbox_config xmlns="http://openbox.org/3.4/rc">
   <applications>
-    <application class="LoxoneConfig.exe">
+    <application type="normal">
       <decor>no</decor>
-      <maximized>yes</maximized>
+      <maximized>true</maximized>
     </application>
-    <application name="Loxone Config">
+    <application type="dialog">
       <decor>no</decor>
-      <maximized>yes</maximized>
+    </application>
+    <application type="utility">
+      <decor>no</decor>
     </application>
   </applications>
 </openbox_config>
 XEOF
+
 
 # Suppress crash dialogs and dumps on every start
 WINEPREFIX=$WINEPREFIX wine reg add "HKCU\\Software\\Wine\\WineDbg" /v ShowCrashDialog /d N /f 2>/dev/null

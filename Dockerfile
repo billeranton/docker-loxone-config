@@ -26,7 +26,6 @@ RUN apt-get update && \
 COPY init-install.sh /init-install.sh
 COPY startapp.sh /startapp.sh
 
-RUN sed -i "s/resize = 'scale';/resize = 'remote';/g" /opt/noVNC/app/ui.js 2>/dev/null || true && \
-    chmod a+rx /startapp.sh /init-install.sh
+RUN chmod a+rx /startapp.sh /init-install.sh
 
 RUN set-cont-env APP_NAME "Loxone Config"
