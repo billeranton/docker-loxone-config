@@ -20,3 +20,5 @@ services:
     volumes:
       - "./config:/config:rw"
       - "./config/Loxone:/config/wine/drive_c/users/app/Documents/Loxone:rw"
+      - "./Projects/@Biller.Loxone:/config/wine/drive_c/users/app/Documents/Loxone/Loxone Config/Projects/@Biller.Loxone:ro"
+      - "./Projects/Projects.json:/config/wine/drive_c/users/app/Documents/Loxone/Projects.json:ro"
