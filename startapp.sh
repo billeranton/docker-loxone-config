@@ -10,8 +10,8 @@ export QT_WEBENGINE_DISABLE_CRASH_REPORTER=1
 export QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-software-rasterizer --disable-extensions"
 setxkbmap $XLANG
 
-# Remove window decorations for all windows to fix noVNC mouse offset.
-# Openbox config in /var/run/ is the one actually used.
+# Remove openbox window decorations.
+# Also force Wine to not include non-client window frame via registry.
 mkdir -p /var/run/openbox
 cat > /var/run/openbox/rc.xml << 'XEOF'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -21,15 +21,11 @@ cat > /var/run/openbox/rc.xml << 'XEOF'
       <decor>no</decor>
       <maximized>true</maximized>
     </application>
-    <application type="dialog">
-      <decor>no</decor>
-    </application>
-    <application type="utility">
-      <decor>no</decor>
-    </application>
   </applications>
 </openbox_config>
 XEOF
+# Make Wine window have no border/frame via registry
+WINEPREFIX=$WINEPREFIX wine reg add "HKCU\\Software\\Wine\\X11 Driver" /v Decorated /d N /f 2>/dev/null
 
 
 # Suppress crash dialogs and dumps on every start
