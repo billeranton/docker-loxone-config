@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   loxone-config:
     image: "local/loxone-config:latest"
@@ -15,8 +14,9 @@ services:
       - DISPLAY_HEIGHT=1080
       - HOME=/config/
       - WINEPREFIX=/config/wine
-      - WINEARCH=win32
+      - WINEARCH=win64
       - XLANG=de
+      # - REINSTALL=1  # set to 1 to reinstall Loxone Config on next start
     volumes:
       - "./config:/config:rw"
       - "./config/Loxone:/config/wine/drive_c/users/app/Documents/Loxone:rw"

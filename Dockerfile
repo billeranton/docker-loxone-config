@@ -1,18 +1,24 @@
-# LoxoneConfig v17+ is 64-bit only. Switch from Alpine/386 (wine32) to Debian/amd64
-# with WineHQ stable (wine32+wine64 multilib) so both the 32-bit installer and
-# the 64-bit LoxoneConfig.exe run correctly.
-FROM jlesage/baseimage-gui:debian-12-v4
+FROM jlesage/baseimage-gui:ubuntu-22.04-v4
 
-RUN dpkg --add-architecture i386 && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        wget gnupg ca-certificates xterm cabextract x11-xkb-utils unzip && \
+# Baseimage-gui ships without /etc/passwd, /var/log is a mount point.
+# Create minimal passwd/group so package installs work during build.
+RUN rm -rf /var/log && mkdir /var/log && \
+    echo "root:x:0:0:root:/root:/bin/sh" > /etc/passwd && \
+    echo "root:x:0:root" > /etc/group && \
+    echo "staff:x:50:root" >> /etc/group && \
+    echo "root::::::::" > /etc/shadow
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        wget gnupg ca-certificates cabextract x11-xkb-utils unzip && \
     wget -nc -q https://dl.winehq.org/wine-builds/winehq.key && \
     gpg -o /etc/apt/keyrings/winehq-archive.key --dearmor winehq.key && \
     rm winehq.key && \
-    wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/bookworm/winehq-bookworm.sources && \
+    wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources && \
+    dpkg --add-architecture i386 && \
     apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --install-recommends winehq-stable winbind && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        winehq-stable && \
     rm -rf /var/lib/apt/lists/* && \
     wget -O /usr/bin/winetricks https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks && \
     chmod +x /usr/bin/winetricks
@@ -20,10 +26,7 @@ RUN dpkg --add-architecture i386 && \
 COPY init-install.sh /init-install.sh
 COPY startapp.sh /startapp.sh
 
-# Set remote resizing as default
-# https://github.com/jlesage/docker-baseimage-gui/issues/112
-RUN sed -i "s/resize = 'scale';/resize = 'remote';/g" /opt/noVNC/app/ui.js 2>/dev/null || true
-
-RUN chmod a+rx /startapp.sh && chmod a+rx /init-install.sh
+RUN sed -i "s/resize = 'scale';/resize = 'remote';/g" /opt/noVNC/app/ui.js 2>/dev/null || true && \
+    chmod a+rx /startapp.sh /init-install.sh
 
 RUN set-cont-env APP_NAME "Loxone Config"
